@@ -6,7 +6,15 @@ export type BillInput = {//导出，类型，账单输入
 
 }
 
+type billItem = SharedBillItem | PersonalBillItem
+//类型，账单项目是分享账单项目或是个人账单项目
+//两种不同的账单格式合并成一种通用格式的方法
 
+type CommonBillItem = {//类型，常见的账单项目，下列分类数据类型
+price : number //价钱，数字类型
+name : string //名字，字串类型
+
+}
 
 function formatDate(date: string): string {
   const [year, month, day] = date.split('-');//使用‘-’分隔开字串，取得年月日。
