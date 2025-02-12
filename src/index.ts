@@ -16,13 +16,19 @@ type CommonBillItem = {//类型，常见的账单项目，下列分类数据类�
 
 }
 
-type SharedBillItem = CommonBillItem & {//类型，分享账单项目与常见账单项目结合
+
+type SharedBillItem = CommonBillItem & {//类型，使用&布尔boolean，true表示共享项目
 // 使用‘&’将共享订单确定一个标记，明确共享账单里，必须带有isShared:true
   isShared: true
 //类似强标签的意思，若没带true，类型就会不匹配，
 //意思就像，我买雪糕必须冷藏，告诉程序，这个账单必须按照共享的规则处理。
 }
-
+type PersonalBillItem = CommonBillItem & {
+  isShared:false
+//使用‘&’布尔值，表示个人账单是否为分享，布尔false代表个人项目不分享。
+  person: string
+//个人账单所属人，格式设定为字符串类型，e.g ‘方丈’
+}
 
 function formatDate(date: string): string {
   const [year, month, day] = date.split('-');//使用‘-’分隔开字串，取得年月日。
