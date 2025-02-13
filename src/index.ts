@@ -30,6 +30,19 @@ type PersonalBillItem = CommonBillItem & {
 //个人账单所属人，格式设定为字符串类型，e.g ‘方丈’
 }
 
+// 输出 Tupe
+export type BillOutput = {//导出，类型，账单输出，
+  data:string//输出，账单日期为字符串
+  location:string//输出，地点为字符串
+  subTotal:number//输出，小计为数字类型
+  tip:number//输出，小费为数字类型
+  totalAmount:number//输出，总合计为数字类型
+  items:PersonalItem[]//项目，个人项目
+
+}
+
+
+
 function formatDate(date: string): string {
   const [year, month, day] = date.split('-');//使用‘-’分隔开字串，取得年月日。
   const formattedMonth = parseInt(month, 10).toString();//将月份字串，转换为数字后，再变回字串，移除前缀0
