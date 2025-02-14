@@ -71,14 +71,14 @@ export function splitBill(input:BillInput): BillOutput {
     items,//返回项目
   }
 }
+//以上不是太了解，且我的date一直报错。
 
 
 
 
 
-
-
-function formatDate(date: string): string {
+/*0210,最先的代码，根据老师里加export调用函数日期，
+export function formatDate(date: string): string {
   const [year, month, day] = date.split('-');//使用‘-’分隔开字串，取得年月日。
   const formattedMonth = parseInt(month, 10).toString();//将月份字串，转换为数字后，再变回字串，移除前缀0
   const formattedDay = parseInt(day, 10).toString();//与月份同理
@@ -90,11 +90,82 @@ function formatDate(date: string): string {
   console.log(formatDate('2024-12-21')); // 預期輸出: 2024年12月21日
   console.log(formatDate('2024-01-21')); // 預期輸出: 2024年1月21日
   console.log(formatDate('2024-12-01')); // 預期輸出: 2024年12月1日
+//用于测试日期模块，是否符合老师要求，使用-分割，且没0字。
+在0214抛弃，专用deepseek的正则表达，更严谨。*/
+export function formatDate(date: string): string { // DS使用正则表达式提取年月日
+//导出函数，格式化日期为字符串模式
+  const match = date.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+//常量 匹配本地数组返回结果，日期匹配
+//^从头匹配，\d数字，{4}连续出现4个数字，=年份，保存在第一个分组match1，-减号分割
+//\d数字，{1,2}连续出现1个或者2个数字，保存在march2
+//与上同理，只是保存在march3
+  if (!match) {//如果，！match正则匹配失败，则提示，输入格式不正确。
+    throw new Error("Invalid date format. Expected YYYY-MM-DD.");
+  //抛出一个错误提示词，日期的格式无效，正确的是XXXX-XX-XX.
+  }
 
-  function calculateSubTotal(items: BillItem[]): number {
+  const [year, month, day] = match.slice(1);
+  const monthNum = parseInt(month, 10);
+  const dayNum = parseInt(day, 10);
+
+  // 校验月份和日期的有效性
+  if (
+    monthNum < 1 || monthNum > 12 ||
+    dayNum < 1 || dayNum > 31 // 简单校验，实际可细化
+  ) {
+    throw new Error("Invalid date value.");
+  }
+
+  // 移除前导零并拼接
+  return `${year}年${monthNum}月${dayNum}日`;
+}
+
+
+
+function calculateSubTotal(items: BillItem[]): number {
     let subTotal = 0;
     for (const item of items) {
       subTotal += item.price; // 將每個餐點的價格累加到 subTotal
     }
     return subTotal;
   }
+
+  export function calculateTip(subTotal: number, tipPercentage: number): number {
+    // output round to closest 10 cents, e.g. 12.34 -> 12.3
+  }
+
+  function scanPersons(items: BillItem[]): string[] {
+    // scan the persons in the items
+  }
+  function calculateItems(
+    items: BillItem[],
+    tipPercentage: number,
+  ): PersonItem[] {
+    let names = scanPersons(items)
+    let persons = names.length
+    return names.map(name => ({
+      name,
+      amount: calculatePersonAmount({
+        items,
+        tipPercentage,
+        name,
+        persons,
+      }),
+    }))
+  }
+  
+  function calculatePersonAmount(input: {
+    items: BillItem[]
+    tipPercentage: number
+    name: string
+    persons: number
+  }): number {
+    // for shared items, split the price evenly
+    // for personal items, do not split the price
+    // return the amount for the person
+  }
+  
+  function adjustAmount(totalAmount: number, items: PersonItem[]): void {
+    // adjust the personal amount to match the total amount
+  }
+  
