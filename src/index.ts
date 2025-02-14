@@ -1,3 +1,5 @@
+import { format } from "path"
+
 export type BillInput = {//导出，类型，账单输入
   date:string //日期，类型是字串
   location:string //地点，类型是字串
@@ -37,9 +39,42 @@ export type BillOutput = {//导出，类型，账单输出，
   subTotal:number//输出，小计为数字类型
   tip:number//输出，小费为数字类型
   totalAmount:number//输出，总合计为数字类型
-  items:PersonalItem[]//项目，个人项目
+  items:PersonalItem[]//项目，个人项目每个人应付的项目为个人项目数组
 
 }
+
+type PersonItem = {//上面定义账单输出，现在定义个人账单项目
+  name:string//名字，为字符串类型
+  amout:number//总计，为数字类型
+
+}
+
+
+//核心函数
+export function splitBill(input:BillInput): BillOutput {
+//导出函数，分账函数，类似自动分账机输入账单信息
+//类比，输入数值应该符合账单输入类型
+//类比，输出的类型，一定符合账单输出的类型。
+  let date = formatDate(input.date)//声明日期，调用formatDate，函数格式化日期
+  let location = input.location//声明地点，直接使用输入的地点
+  let subTotal = calculateSubTotal(input.items)//声明小计，计算小计，直接使用输入项目里的
+  let tip = calculateTip(subTotal, input.tipPercentage)//声明小费，计算小费，包含小计，输入，个人小费，并调用函数计算小费
+  let totalAmount = subTotal + tip//总金额=小计+小费
+  let items = calculateItems(input.items, input.tipPercentage)//声明项目，由calculateItems函数来计算输入项目，输入个人小费费用
+  adjustAmount(totalAmount, items)// 调用 adjustAmount 函数调整个人应付金额以匹配总金额
+  return {// 返回 BillOutput 类型的结果
+    date,//返回日期
+    location,//返回地点
+    subTotal,//返回小计
+    tip,//返回小费
+    totalAmount,//返回总金额
+    items,//返回项目
+  }
+}
+
+
+
+
 
 
 
