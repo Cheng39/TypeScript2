@@ -4,11 +4,11 @@ export type BillInput = {//导出，类型，账单输入
   date:string //日期，类型是字串
   location:string //地点，类型是字串
   tipPercentage:number//小费百分比，数字
-  items:BillInput[]//项目，账单输入
+  items:BillItem[]//项目，账单输入
 
 }
 
-type billItem = SharedBillItem | PersonalBillItem
+type BillItem = SharedBillItem | PersonalBillItem
   //类型，账单项目是分享账单项目或是个人账单项目
   //两种不同的账单格式合并成一种通用格式的方法
 
@@ -39,13 +39,13 @@ export type BillOutput = {//导出，类型，账单输出，
   subTotal:number//输出，小计为数字类型
   tip:number//输出，小费为数字类型
   totalAmount:number//输出，总合计为数字类型
-  items:PersonalItem[]//项目，个人项目每个人应付的项目为个人项目数组
+  items:PersonItem[]//项目，个人项目每个人应付的项目为个人项目数组
 
 }
 
 type PersonItem = {//上面定义账单输出，现在定义个人账单项目
   name:string//名字，为字符串类型
-  amout:number//总计，为数字类型
+  amount:number//总计，为数字类型
 
 }
 
@@ -133,42 +133,71 @@ function calculateSubTotal(items: BillItem[]): number {
   }
 
   export function calculateTip(subTotal: number, tipPercentage: number): number {
-    
+    if (isNaN(subTotal) || isNaN(tipPercentage)) { // 检查 subTotal 和 tipPercentage 是否为数字
+      return 0; // 如果不是数字，则返回小费 0，或者你也可以抛出错误
+    }
+    return subTotal * (tipPercentage / 100); // 计算小费：小计 * (小费百分比 / 100)
 
   }
 
   function scanPersons(items: BillItem[]): string[] {
+    const persons = new Set<string>(); // 使用 Set 来存储人员姓名，自动去重
+    for (const item of items) { // 遍历每个账单项目
+      if (!item.isShared && (item as PersonalBillItem).person) { // 检查是否为个人项目并且存在 person 属性
+        persons.add((item as PersonalBillItem).person); // 如果是个人项目，将 person 属性值添加到 Set 中
+      }
+    }
+    return Array.from(persons); // 将 Set 转换为数组并返回
     // scan the persons in the items
   }
   function calculateItems(
     items: BillItem[],
     tipPercentage: number,
   ): PersonItem[] {
-    let names = scanPersons(items)
-    let persons = names.length
-    return names.map(name => ({
-      name,
-      amount: calculatePersonAmount({
-        items,
-        tipPercentage,
-        name,
-        persons,
-      }),
-    }))
-  }
+    let names = scanPersons(items); // 获取所有人员姓名
+    let personsCount = names.length; // 获取人员数量
   
-  function calculatePersonAmount(input: {
-    items: BillItem[]
-    tipPercentage: number
-    name: string
-    persons: number
-  }): number {
-    // for shared items, split the price evenly
-    // for personal items, do not split the price
-    // return the amount for the person
+    const sharedItemsSubTotal = items.filter(item => item.isShared).reduce((sum, item) => sum + item.price, 0); // 计算共享项目的总价
+    const sharedTip = calculateTip(sharedItemsSubTotal, tipPercentage); // 计算共享项目的小费
+    const sharedTipPerPerson = sharedTip / personsCount; // 计算每个人应分摊的共享小费
+  
+    const personItemsMap = new Map<string, PersonItem>(); // 使用 Map 存储每个人的项目明细
+  
+    names.forEach(name => { // 初始化每个人的 PersonItem
+      personItemsMap.set(name, { name: name, amount: 0 }); // 初始应付金额为 0
+    });
+  
+    for (const item of items) { // 遍历每个账单项目
+      if (item.isShared) { // 如果是共享项目
+        const pricePerPerson = item.price / personsCount; // 计算每个人应分摊的共享项目价格
+        names.forEach(name => { // 为每个人累加共享项目的分摊价格
+          const personItem = personItemsMap.get(name)!; // 使用 ! 断言 personItem 存在，因为前面已经初始化
+          personItem.amount += pricePerPerson + sharedTipPerPerson; // 累加共享项目分摊价格和共享小费
+        });
+      } else { // 如果是个人项目
+        const personalItem = item as PersonalBillItem; // 类型断言为 PersonalBillItem
+        const personItem = personItemsMap.get(personalItem.person)!; // 获取个人项目所属人的 PersonItem
+        personItem.amount += personalItem.price; // 累加个人项目价格，个人项目不分摊小费
+      }
+    }
+  
+    // 将 Map 转换为 PersonItem 数组
+    const personItems: PersonItem[] = [];
+    personItemsMap.forEach(item => personItems.push(item));
+    return personItems;
   }
   
   function adjustAmount(totalAmount: number, items: PersonItem[]): void {
-    // adjust the personal amount to match the total amount
-  }
+    let currentTotal = items.reduce((sum, item) => sum + item.amount, 0); // 计算当前个人应付总额
+    let diff = totalAmount - currentTotal; // 计算总金额与个人应付总额的差额
+
+    if (Math.abs(diff) > 0.001) { // 如果差额超过一定精度范围 (例如 0.001)
+        // 为了避免无限循环，这里简单地将差额加到第一个人的账单上
+        if (items.length > 0) {
+            items[0].amount += diff; // 将差额加到第一个人的应付金额上
+        }
+    }
+}
+  
+ 
   
