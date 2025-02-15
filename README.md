@@ -1,6 +1,6 @@
 # Assignment 1
 
-學生名稱：
+學生名稱：Fang weicheng
 
 ## 使用說明
 
@@ -13,5 +13,5 @@ npm install
 2. **執行測試**：
 
 ```bash
-npm test
+npm mocha .\test\core.test.js
 ```
