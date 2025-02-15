@@ -1,8 +1,10 @@
 node_modules/
 dist/
-build/
-.vscode/
-.idea/
-*.log
-*.env
-.env.*
+*-lock.json
+*-lock.yaml
+*.lock
+.*-debug.log
+*.tsbuildinfo
+.env
+*.tgz
+.DS_Store
