@@ -34,7 +34,7 @@ type PersonalBillItem = CommonBillItem & {
 
 // 输出 Tupe
 export type BillOutput = {//导出，类型，账单输出，
-  data:string//输出，账单日期为字符串
+  date:string//输出，账单日期为字符串
   location:string//输出，地点为字符串
   subTotal:number//输出，小计为数字类型
   tip:number//输出，小费为数字类型
@@ -125,7 +125,11 @@ export function formatDate(date: string): string { // DS使用正则表达式提
 
 
 function calculateSubTotal(items: BillItem[]): number {
-  
+  let subTotal = 0; // 初始化小计为0
+  for (const item of items) { // 循环遍历每个账单项目
+    subTotal += item.price; // 累加项目价格到小计
+  }
+  return subTotal; // 返回计算后的小计
   }
 
   export function calculateTip(subTotal: number, tipPercentage: number): number {
