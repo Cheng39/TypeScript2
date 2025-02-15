@@ -13,31 +13,6 @@ exports.splitBill = splitBill;
 exports.formatDate = formatDate;
 exports.calculateTip = calculateTip;
 //核心函数
-/*export function splitBill(input:BillInput): BillOutput {
-//导出函数，分账函数，类似自动分账机输入账单信息
-//类比，输入数值应该符合账单输入类型
-//类比，输出的类型，一定符合账单输出的类型。
-    let date = formatDate(input.date)//声明日期，调用formatDate，函数格式化日期
-    let location = input.location//声明地点，直接使用输入的地点
-    let subTotal = calculateSubTotal(input.items)//声明小计，计算小计，直接使用输入项目里的
-    let tip = calculateTip(subTotal, input.tipPercentage)//声明小费，计算小费，包含小计，输入，个人小费，并调用函数计算小费
-    let totalAmount = subTotal + tip//总金额=小计+小费
-    let items = calculateItems(input.items, input.tipPercentage)//声明项目，由calculateItems函数来计算输入项目，输入个人小费费用
-    adjustAmount(totalAmount, items)// 调用 adjustAmount 函数调整个人应付金额以匹配总金额
-    console.log("完整账单输出 (BillOutput):");
-    console.log(billOutput); //  直接输出 billOutput 对象，会以 JSON 格式显示
-
-    return {// 返回 BillOutput 类型的结果
-        date,//返回日期
-        location,//返回地点
-        subTotal,//返回小计
-        tip,//返回小费
-        totalAmount,//返回总金额
-        items,//返回项目
-    }
-}
-//以上不是太了解，且我的date一直报错。
-*/
 function splitBill(input) {
     // ... (之前的代码 - formatDate, location, subTotal, tip, totalAmount, items 的计算) ...
     var date = formatDate(input.date); //声明日期，调用formatDate，函数格式化日期
@@ -47,17 +22,17 @@ function splitBill(input) {
     var totalAmount = subTotal + tip; //总金额=小计+小费
     var items = calculateItems(input.items, input.tipPercentage); //声明项目，由calculateItems函数来计算输入项目，输入个人小费费用
     adjustAmount(totalAmount, items); // 调用 adjustAmount 函数调整个人应付金额以匹配总金额
-    //  声明 billOutput 变量，并将 BillOutput 对象赋值给它
+    // 声明 billOutput 变量，并将 BillOutput 对象赋值给它
     var billOutput = {
         date: date, //返回日期
         location: location, //返回地点
         subTotal: subTotal, //返回小计
         tip: tip, //返回小费
         totalAmount: totalAmount, //返回总金额
-        items: items,
+        items: items.map(function (item) { return ({ name: item.name, amount: parseFloat(item.amount.toFixed(1)) }); }), //返回项目，并在这里对 amount 进行四舍五入
     };
     console.log("完整账单输出 (BillOutput):");
-    console.log(billOutput); //  现在 billOutput 变量已经被定义，可以正常使用
+    console.log(billOutput); // 现在 billOutput 变量已经被定义，可以正常使用
     return billOutput; // 返回 billOutput 变量
 }
 /*0210,最先的代码，根据老师里加export调用函数日期，
@@ -66,10 +41,9 @@ export function formatDate(date: string): string {
     const formattedMonth = parseInt(month, 10).toString();//将月份字串，转换为数字后，再变回字串，移除前缀0
     const formattedDay = parseInt(day, 10).toString();//与月份同理
     return `${year}年${formattedMonth}月${formattedDay}日`;//使用样板字串组合输出格式
-    //使用Gemini，0209/1700抄写测试。
+//使用Gemini，0209/1700抄写测试。
 
     
-}
     console.log(formatDate('2024-12-21')); // 預期輸出: 2024年12月21日
     console.log(formatDate('2024-01-21')); // 預期輸出: 2024年1月21日
     console.log(formatDate('2024-12-01')); // 預期輸出: 2024年12月1日
@@ -113,7 +87,7 @@ function calculateTip(subTotal, tipPercentage) {
         return 0; // 如果不是数字，则返回小费 0，或者你也可以抛出错误
     }
     var tip = subTotal * (tipPercentage / 100); // 计算小费
-    return Math.round(tip * 10) / 10; //  **更改 1: 使用 Math.round 实现四舍五入到 0.1**
+    return Math.round(tip * 10) / 10; // **更改 1: 使用 Math.round 实现四舍五入到 0.1**
 }
 function scanPersons(items) {
     var persons = new Set(); // 使用 Set 来存储人员姓名，自动去重
@@ -145,7 +119,7 @@ function calculateItems(items, tipPercentage) {
                 var personItem = personItemsMap.get(name); // 使用 ! 断言 personItem 存在，因为前面已经初始化
                 // 更改 3: 累加时加上舍入后的小费
                 personItem.amount += pricePerPerson_1 + sharedTipPerPerson; // 累加共享项目分摊价格和共享小费
-                // 更改 4:  对 personItem.amount 再次舍入，确保累加后的总额也是一位小数
+                // 更改 4: 对 personItem.amount 再次舍入，确保累加后的总额也是一位小数
                 personItem.amount = parseFloat(personItem.amount.toFixed(1));
             });
         }
