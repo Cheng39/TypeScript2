@@ -181,47 +181,41 @@ function scanPersons(items: BillItem[]): string[] {
     // scan the persons in the items
 }
 function calculateItems(
-    items: BillItem[],
-    tipPercentage: number,
+  items: BillItem[],
+  tipPercentage: number,
 ): PersonItem[] {
-    let names = scanPersons(items); // 获取所有人员姓名
-    let personsCount = names.length; // 获取人员数量
+  let names = scanPersons(items);
+  let personsCount = names.length;
+  const sharedItemsSubTotal = items.filter(item => item.isShared).reduce((sum, item) => sum + item.price, 0);
+  const sharedTip = calculateTip(sharedItemsSubTotal, tipPercentage);
+  const sharedTipPerPerson = sharedTip / personsCount; // 不在此處捨入
 
-    const sharedItemsSubTotal = items.filter(item => item.isShared).reduce((sum, item) => sum + item.price, 0); // 计算共享项目的总价
-    const sharedTip = calculateTip(sharedItemsSubTotal, tipPercentage); // 计算共享项目的小费
-    // 更改 1: 在计算 sharedTipPerPerson 时进行舍入
-    const sharedTipPerPerson = parseFloat((sharedTip / personsCount).toFixed(1)); // 计算每个人应分摊的共享小费, 并舍入到一位小数
+  const personItemsMap = new Map<string, PersonItem>();
+  names.forEach(name => {
+    personItemsMap.set(name, { name: name, amount: 0 });
+  });
 
-    const personItemsMap = new Map<string, PersonItem>(); // 使用 Map 存储每个人的项目明细
-
-    names.forEach(name => { // 初始化每个人的 PersonItem
-        personItemsMap.set(name, { name: name, amount: 0 }); // 初始应付金额为 0
-    });
-
-    for (const item of items) { // 遍历每个账单项目
-        if (item.isShared) { // 如果是共享项目
-            // 更改 2: 在计算 pricePerPerson 时进行舍入
-            const pricePerPerson = parseFloat((item.price / personsCount).toFixed(1)); // 计算每个人应分摊的共享项目价格, 并舍入到一位小数
-            names.forEach(name => { // 为每个人累加共享项目的分摊价格
-                const personItem = personItemsMap.get(name)!; // 使用 ! 断言 personItem 存在，因为前面已经初始化
-                // 更改 3: 累加时加上舍入后的小费
-                personItem.amount += pricePerPerson + sharedTipPerPerson; // 累加共享项目分摊价格和共享小费
-                // 更改 4:  对 personItem.amount 再次舍入，确保累加后的总额也是一位小数
-                personItem.amount = parseFloat(personItem.amount.toFixed(1));
-            });
-        } else { // 如果是个人项目
-            const personalItem = item as PersonalBillItem; // 类型断言为 PersonalBillItem
-            const personItem = personItemsMap.get(personalItem.person)!; // 获取个人项目所属人的 PersonItem
-            personItem.amount += personalItem.price; // 累加个人项目价格，个人项目不分摊小费
-             // 更改 5: 对 personItem.amount 再次舍入，确保累加个人项目后的总额也是一位小数
-            personItem.amount = parseFloat(personItem.amount.toFixed(1));
-        }
+  for (const item of items) {
+    if (item.isShared) {
+      const pricePerPerson = item.price / personsCount; // 不在此處捨入
+      names.forEach(name => {
+        const personItem = personItemsMap.get(name)!;
+        personItem.amount += pricePerPerson + sharedTipPerPerson;
+      });
+    } else {
+      const personalItem = item as PersonalBillItem;
+      const personItem = personItemsMap.get(personalItem.person)!;
+      personItem.amount += personalItem.price;
     }
+  }
 
-    // 将 Map 转换为 PersonItem 数组
-    const personItems: PersonItem[] = [];
-    personItemsMap.forEach(item => personItems.push(item));
-    return personItems;
+  // 在最後一步進行捨入
+  const personItems: PersonItem[] = [];
+  personItemsMap.forEach(item => {
+    personItems.push({ name: item.name, amount: parseFloat(item.amount.toFixed(1)) });
+  });
+
+  return personItems;
 }
 
 function adjustAmount(totalAmount: number, items: PersonItem[]): void {
@@ -229,34 +223,25 @@ function adjustAmount(totalAmount: number, items: PersonItem[]): void {
   let diff = parseFloat((totalAmount - currentTotal).toFixed(1));
 
   if (Math.abs(diff) > 0.01) {
-      // 优先调整金额较多的人，或者可以根据其他策略更均匀地分配差额
-      let sortedItems = [...items].sort((a, b) => b.amount - a.amount); // 金额从高到低排序
-      let adjustmentPerPerson = parseFloat((diff / items.length).toFixed(2)); // 计算平均每人调整多少 (保留两位小数先)
-      let remainingDiff = diff;
+    let sortedItems = [...items].sort((a, b) => b.amount - a.amount);
+    let adjustmentPerPerson = diff / items.length;
+    let remainingDiff = diff;
 
-      for (let i = 0; i < sortedItems.length; i++) {
-          let itemToAdjust = sortedItems[i];
-          let adjustment = adjustmentPerPerson;
+    for (let i = 0; i < sortedItems.length; i++) {
+      let itemToAdjust = sortedItems[i];
+      let adjustment = adjustmentPerPerson;
 
-          // 确保最后一个人调整后，总额完全相等，避免累积误差
-          if (i === sortedItems.length - 1) {
-              adjustment = remainingDiff; // 将剩余的差额全部给最后一人
-          }
-
-          let adjustedAmount = parseFloat((itemToAdjust.amount + adjustment).toFixed(1)); // 调整金额并舍入到一位小数
-          itemToAdjust.amount = adjustedAmount;
-          remainingDiff = parseFloat((remainingDiff - adjustment).toFixed(1)); // 减去已调整的差额, 并进行舍入
-
-          if (Math.abs(remainingDiff) <= 0.01) { // 差额足够小，提前结束调整
-              break;
-          }
+      if (i === sortedItems.length - 1) {
+        adjustment = remainingDiff;
       }
 
-      // 再次进行最终的总额校验和微调 (可以省略，如果在循环中已精确控制)
-      currentTotal = parseFloat(items.reduce((sum, item) => sum + item.amount, 0).toFixed(1));
-      diff = parseFloat((totalAmount - currentTotal).toFixed(1));
-      if (Math.abs(diff) > 0.01 && items.length > 0) { // 最后的微调，如果还有少量误差，调整第一个人
-          items[0].amount = parseFloat((items[0].amount + diff).toFixed(1));
-      }
+      itemToAdjust.amount += adjustment;
+      remainingDiff -= adjustment;
+    }
+
+    // 最後對每個人的金額進行捨入
+    items.forEach(item => {
+      item.amount = parseFloat(item.amount.toFixed(1));
+    });
   }
 }
