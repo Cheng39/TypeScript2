@@ -104,34 +104,33 @@ export function formatDate(date: string): string { // DS使用正则表达式提
   //抛出一个错误提示词，日期的格式无效，正确的是XXXX-XX-XX.
   }
 
-  const [year, month, day] = match.slice(1);
-  const monthNum = parseInt(month, 10);
-  const dayNum = parseInt(day, 10);
+  const [year, month, day] = match.slice(1);//数组第0项目的123项对应年月日
+  const monthNum = parseInt(month, 10);//声明，月份，以10进制解析，用来去0.
+  const dayNum = parseInt(day, 10);//目前只认识parseInt，精确使用不会。
 
   // 校验月份和日期的有效性
   if (
-    monthNum < 1 || monthNum > 12 ||
-    dayNum < 1 || dayNum > 31 // 简单校验，实际可细化
+    monthNum < 1 || monthNum > 12 ||//月份数字小于1，或者大于12，抛出一个错误，||做对比验证
+    dayNum < 1 || dayNum > 31 //两次连续对比，第一测大小，如果小直接出错，如果不小于，但是大于31，也会提示错误。
   ) {
-    throw new Error("Invalid date value.");
+    throw new Error("Invalid date value.");//抛出一个日期格式错误
   }
 
   // 移除前导零并拼接
   return `${year}年${monthNum}月${dayNum}日`;
+  //字符串占位符${}，year转化为字符串，到设定好的位置，数字填入年月日前面。
+  //类似一个变量容器，表达式放入进去，自动计算结果
 }
 
 
 
 function calculateSubTotal(items: BillItem[]): number {
-    let subTotal = 0;
-    for (const item of items) {
-      subTotal += item.price; // 將每個餐點的價格累加到 subTotal
-    }
-    return subTotal;
+  
   }
 
   export function calculateTip(subTotal: number, tipPercentage: number): number {
-    // output round to closest 10 cents, e.g. 12.34 -> 12.3
+    
+
   }
 
   function scanPersons(items: BillItem[]): string[] {
