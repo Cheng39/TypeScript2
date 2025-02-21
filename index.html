@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聚餐分帳計算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .currency {
+            font-weight: bold;
+            color: goldenrod;
+        }
+    </style>
+</head>
+<body>
+    <h1>聚餐分帳計算器</h1>
+    <form id="split-bill-form">
+        <div class="input-group">
+            <label>日期:
+                <input type="date" id="date" required />
+            </label>
+            <label>餐廳名稱:
+                <input type="text" id="location" required />
+            </label>
+            <label>小費百分比:
+                <input type="number" id="tipPercentage" min="0" max="100" required />
+            </label>
+        </div>
+
+        <h2>收費項目</h2>
+        <div id="items-container"></div>
+        <button type="button" id="add-item">新增餐點</button>
+        <input type="submit" value="計算分帳" />
+    </form>
+
+    <div id="result-container" style="display:none;"></div>
+
+    <script src="dist/bundle.js"></script> <!-- 编译后的 JavaScript 文件 -->
+</body>
+</html>
