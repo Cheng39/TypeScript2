@@ -5,172 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>聚餐分帳計算器</title>
     <style>
-    #result-container {
-        margin: 20px;
-        padding: 20px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-
-    .currency {
-        font-weight: bold;
-        color: goldenrod;
-    }
-
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
-        }
-        .input-group {
-            margin-bottom: 1rem;
-        }
-        .input-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-        .currency {
-            font-weight: bold;
-            color: goldenrod;
-        }
+        /* CSS 样式将在后续步骤中添加 */
     </style>
 </head>
 <body>
-
-<h1>聚餐分帳計算器</h1>
-<form id="bill-form">
-    <div class="input-group">
-        <label>日期:
-            <input type="date" id="date" required />
-        </label>
-        <label>餐廳名稱:
-            <input type="text" id="location" required />
-        </label>
-        <label>小費百分比:
-            <input type="number" id="tipPercentage" min="0" max="100" required />
-        </label>
-    </div>
-
-    <h2>收費項目</h2>
-    <div id="items-container"></div>
-    <button type="button" id="add-item">新增餐點</button>
-    <input type="submit" value="計算分帳" />
-</form>
-
-<div id="result-container" style="display:none;"></div>
-
-<script>
-    // TypeScript 代碼轉換為 JavaScript
-    // 輸入 Type
-    function splitBill(input) {
-        // ... (splitBill 函數)
-    }
-
-    function formatDate(date) {
-    const parts = date.split("-");
-    let year = parseInt(parts[0]);
-    let month = parseInt(parts[1]);
-    let day = parseInt(parts[2]);
-    return `<span class="math-inline">\{year\}年</span>{month}月${day}日`;
-        // ... (formatDate 函數)
-    }
-
-    function calculateSubTotal(items) {
-        // ... (calculateSubTotal 函數)
-    }
-
-    function calculateTip(subTotal, tipPercentage) {
-        // ... (calculateTip 函數)
-    }
-
-    function scanPersons(items) {
-        // ... (scanPersons 函數)
-    }
-
-    function calculateItems(items, tipPercentage) {
-    const names = scanPersons(items).sort(); // 添加 sort() 方法
-    const persons = names.length;
-
-    return names.map((name) => ({
-        name,
-        amount: calculatePersonAmount({
-            items,
-            tipPercentage,
-            name,
-            persons,
-        }),
-    }));
-}
-
-    function calculatePersonAmount(input) {
-        // ... (calculatePersonAmount 函數)
-    }
-
-    function adjustAmounts(totalAmount, items) {
-        // ... (adjustAmounts 函數)
-    }
-
-    document.getElementById('add-item').addEventListener('click', () => {
-      const itemHTML = `
+    <h1>聚餐分帳計算器</h1>
+    <form id="bill-form">
         <div class="input-group">
-            <label>餐點名稱:
-                <input type="text" class="item-name" required />
-            </label>
-            <label>價格（元）:
-                <input type="number" class="item-price" min="0" step="0.1" required />
-            </label>
-            <label>是否均分:
-                <input type="checkbox" class="is-shared" checked />
-            </label>
-            <label>付款人:
-                <input type="text" class="payer" placeholder="付款人名稱（僅對不均分項目有效）" />
-            </label>
-        </div>`;
-    document.getElementById('items-container').insertAdjacentHTML('beforeend', itemHTML);
-            // ... (add-item 事件處理器)
-});
-
-
-document.getElementById('bill-form').addEventListener('submit', (event) => {
-    event.preventDefault();
-
-    const date = document.getElementById('date').value;
-    const location = document.getElementById('location').value;
-    const tipPercentage = parseFloat(document.getElementById('tipPercentage').value);
-
-    const items = Array.from(document.querySelectorAll('.input-group')).map((item) => {
-        const name = item.querySelector('.item-name').value;
-        const priceElement = item.querySelector('.item-price');
-        const price = priceElement ? parseFloat(priceElement.value) : 0; // 添加错误处理
-        const isShared = item.querySelector('.is-shared').checked;
-        const person = item.querySelector('.payer').value;
-
-        return isShared ? { name, price, isShared: true } : { name, price, isShared: false, person };
-    });
-
-    const billInput = { date, location, tipPercentage, items };
-    const billOutput = splitBill(billInput);
-
-    displayResults(billOutput);
-});
-        // ... (bill-form submit 事件處理器)
-
-
-        function displayResults(output) {
-    const resultContainer = document.getElementById('result-container');
-    resultContainer.innerHTML = `
-        <h2>分帳結果</h2>
-        <p>日期：${output.date}</p>
-        <p>地點：${output.location}</p>
-        <p>小計：<span class="currency">$${output.subTotal.toFixed(1)}</span></p>
-        <p>小費：<span class="currency">$${output.tip.toFixed(1)}</span></p>
-        <p>總金額：<span class="currency">$${output.totalAmount.toFixed(1)}</span></p>
-        <h3>每人最終需支付金額</h3>
-        <ul>${output.items.map(item => `<li>${item.name}: <span class="currency">$${item.amount.toFixed(1)}</span></li>`).join('')}</ul>
-    `;
-    resultContainer.style.display = 'block';
-        // ... (displayResults 函數)
-    }
-</script>
+            <label>日期: <input type="date" id="date" required /></label>
+            <label>餐廳名稱: <input type="text" id="location" required /></label>
+            <label>小費百分比: <input type="number" id="tipPercentage" min="0" max="100" required /></label>
+        </div>
+        <h2>收費項目</h2>
+        <div id="items-container"></div>
+        <button type="button" id="add-item">新增餐點</button>
+        <input type="submit" value="計算分帳" />
+    </form>
+    <div id="result-container" style="display:none;"></div>
+    <script>
+        // JavaScript 代码将在后续步骤中添加
+    </script>
 </body>
 </html>
