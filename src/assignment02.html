@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聚餐分帳計算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        .currency {
+            font-weight: bold;
+            color: goldenrod;
+        }
+    </style>
+</head>
+<body>
+
+<h1>聚餐分帳計算器</h1>
+<form id="bill-form">
+    <div class="input-group">
+        <label>日期:
+            <input type="date" id="date" required />
+        </label>
+        <label>餐廳名稱:
+            <input type="text" id="location" required />
+        </label>
+        <label>小費百分比:
+            <input type="number" id="tipPercentage" min="0" max="100" required />
+        </label>
+    </div>
+
+    <h2>收費項目</h2>
+    <div id="items-container"></div>
+    <button type="button" id="add-item">新增餐點</button>
+    <input type="submit" value="計算分帳" />
+</form>
+
+<div id="result-container" style="display:none;"></div>
+
+<script>
+    // TypeScript 代碼轉換為 JavaScript
+    // 輸入 Type
+    function splitBill(input) {
+        // ... (splitBill 函數)
+    }
+
+    function formatDate(date) {
+        // ... (formatDate 函數)
+    }
+
+    function calculateSubTotal(items) {
+        // ... (calculateSubTotal 函數)
+    }
+
+    function calculateTip(subTotal, tipPercentage) {
+        // ... (calculateTip 函數)
+    }
+
+    function scanPersons(items) {
+        // ... (scanPersons 函數)
+    }
+
+    function calculateItems(items, tipPercentage) {
+        // ... (calculateItems 函數)
+    }
+
+    function calculatePersonAmount(input) {
+        // ... (calculatePersonAmount 函數)
+    }
+
+    function adjustAmounts(totalAmount, items) {
+        // ... (adjustAmounts 函數)
+    }
+
+    document.getElementById('add-item').addEventListener('click', () => {
+      const itemHTML = `
+        <div class="input-group">
+            <label>餐點名稱:
+                <input type="text" class="item-name" required />
+            </label>
+            <label>價格（元）:
+                <input type="number" class="item-price" min="0" step="0.1" required />
+            </label>
+            <label>是否均分:
+                <input type="checkbox" class="is-shared" checked />
+            </label>
+            <label>付款人:
+                <input type="text" class="payer" placeholder="付款人名稱（僅對不均分項目有效）" />
+            </label>
+        </div>`;
+    document.getElementById('items-container').insertAdjacentHTML('beforeend', itemHTML);
+            // ... (add-item 事件處理器)
+});
+
+
+    document.getElementById('bill-form').addEventListener('submit', (event) => {
+        // ... (bill-form submit 事件處理器)
+    });
+
+    function displayResults(output) {
+        // ... (displayResults 函數)
+    }
+</script>
+</body>
+</html>
