@@ -1,53 +1,53 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var chai_1 = require("chai");
-var core_1 = require("../src/core");
-describe('日期格式', function () {
-    it('2-digit month and day', function () {
-        var input = '2024-12-21';
-        var output = '2024年12月21日';
+const chai_1 = require("chai");
+const core_1 = require("../src/core");
+describe('日期格式', () => {
+    it('2-digit month and day', () => {
+        let input = '2024-12-21';
+        let output = '2024年12月21日';
         (0, chai_1.expect)((0, core_1.formatDate)(input)).to.equal(output);
     });
-    it('1-digit month', function () {
-        var input = '2024-01-21';
-        var output = '2024年1月21日';
+    it('1-digit month', () => {
+        let input = '2024-01-21';
+        let output = '2024年1月21日';
         (0, chai_1.expect)((0, core_1.formatDate)(input)).to.equal(output);
     });
-    it('1-digit day', function () {
-        var input = '2024-12-01';
-        var output = '2024年12月1日';
+    it('1-digit day', () => {
+        let input = '2024-12-01';
+        let output = '2024年12月1日';
         (0, chai_1.expect)((0, core_1.formatDate)(input)).to.equal(output);
     });
 });
-describe('小費計算', function () {
-    it('無小費', function () {
-        var subTotal = 100;
-        var tipPercentage = 0;
-        var output = 0;
+describe('小費計算', () => {
+    it('無小費', () => {
+        let subTotal = 100;
+        let tipPercentage = 0;
+        let output = 0;
         (0, chai_1.expect)((0, core_1.calculateTip)(subTotal, tipPercentage)).to.equal(output);
     });
-    it('有小費，不需要四捨五入', function () {
-        var subTotal = 100;
-        var tipPercentage = 10;
-        var output = 10;
+    it('有小費，不需要四捨五入', () => {
+        let subTotal = 100;
+        let tipPercentage = 10;
+        let output = 10;
         (0, chai_1.expect)((0, core_1.calculateTip)(subTotal, tipPercentage)).to.equal(output);
     });
-    it('有小費，向下四捨五入', function () {
-        var subTotal = 123.4;
-        var tipPercentage = 10;
-        var output = 12.3;
+    it('有小費，向下四捨五入', () => {
+        let subTotal = 123.4;
+        let tipPercentage = 10;
+        let output = 12.3;
         (0, chai_1.expect)((0, core_1.calculateTip)(subTotal, tipPercentage)).to.equal(output);
     });
-    it('有小費，向上四捨五入', function () {
-        var subTotal = 123.5;
-        var tipPercentage = 10;
-        var output = 12.4;
+    it('有小費，向上四捨五入', () => {
+        let subTotal = 123.5;
+        let tipPercentage = 10;
+        let output = 12.4;
         (0, chai_1.expect)((0, core_1.calculateTip)(subTotal, tipPercentage)).to.equal(output);
     });
 });
-describe('分帳計算', function () {
-    it('無舍入誤差', function () {
-        var input = {
+describe('分帳計算', () => {
+    it('無舍入誤差', () => {
+        const input = {
             date: '2024-03-21',
             location: '開心小館',
             tipPercentage: 10,
@@ -71,7 +71,7 @@ describe('分帳計算', function () {
                 },
             ],
         };
-        var output = {
+        const output = {
             date: '2024年3月21日',
             location: '開心小館',
             subTotal: 100,
@@ -90,8 +90,8 @@ describe('分帳計算', function () {
         };
         (0, chai_1.expect)((0, core_1.splitBill)(input)).to.deep.equal(output);
     });
-    it('有舍入誤差，向下調整 0.1 元', function () {
-        var input = {
+    it('有舍入誤差，向下調整 0.1 元', () => {
+        const input = {
             date: '2024-03-21',
             location: '開心小館',
             tipPercentage: 10,
@@ -126,7 +126,7 @@ describe('分帳計算', function () {
                 },
             ],
         };
-        var output = {
+        const output = {
             date: '2024年3月21日',
             location: '開心小館',
             subTotal: 237,
@@ -149,8 +149,8 @@ describe('分帳計算', function () {
         };
         (0, chai_1.expect)((0, core_1.splitBill)(input)).to.deep.equal(output);
     });
-    it('有舍入誤差，向上調整 0.1 元', function () {
-        var input = {
+    it('有舍入誤差，向上調整 0.1 元', () => {
+        const input = {
             date: '2024-03-21',
             location: '開心小館',
             tipPercentage: 10,
@@ -180,7 +180,7 @@ describe('分帳計算', function () {
                 },
             ],
         };
-        var output = {
+        const output = {
             date: '2024年3月21日',
             location: '開心小館',
             subTotal: 224,
