@@ -5,10 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>聚餐分帳計算器</title>
     <style>
-        /* CSS 样式将在后续步骤中添加 */
+        body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f9f9f9;
+}
+.input-group {
+    margin-bottom: 1rem;
+}
+.input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+.currency {
+    font-weight: bold;
+    color: goldenrod;
+}
+#result-container {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+table, th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+th {
+    background-color: #f2f2f2;
+}
     </style>
 </head>
 <body>
+
     <h1>聚餐分帳計算器</h1>
     <form id="bill-form">
         <div class="input-group">
@@ -163,6 +198,27 @@ function adjustAmounts(totalAmount, items) {
     if (finalDifference !== 0) {
         items[0].amount = parseFloat((items[0].amount + finalDifference).toFixed(1));
     }
+}
+function displayResults(output) {
+    const resultContainer = document.getElementById('result-container');
+    let itemsHTML = '';
+    output.items.forEach(item => {
+        itemsHTML += `<tr><td>${item.name}</td><td>$${item.amount.toFixed(1)}</td></tr>`;
+    });
+    resultContainer.innerHTML = `
+        <h2>分帳結果</h2>
+        <p>日期：${output.date}</p>
+        <p>地點：${output.location}</p>
+        <p>小計：<span class="currency">$${output.subTotal.toFixed(1)}</span></p>
+        <p>小費：<span class="currency">$${output.tip.toFixed(1)}</span></p>
+        <p>總金額：<span class="currency">$${output.totalAmount.toFixed(1)}</span></p>
+        <h3>每人最終需支付金額</h3>
+        <table>
+            <thead><tr><th>姓名</th><th>金額</th></tr></thead>
+            <tbody>${itemsHTML}</tbody>
+        </table>
+    `;
+    resultContainer.style.display = 'block';
 }
     // ... (分账计算和结果显示函数将在后续步骤中添加)
 });
