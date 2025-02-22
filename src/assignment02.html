@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>聚餐分帳計算器</title>
     <style>
+    #result-container {
+        margin: 20px;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .currency {
+        font-weight: bold;
+        color: goldenrod;
+    }
+
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
@@ -55,6 +67,11 @@
     }
 
     function formatDate(date) {
+    const parts = date.split("-");
+    let year = parseInt(parts[0]);
+    let month = parseInt(parts[1]);
+    let day = parseInt(parts[2]);
+    return `<span class="math-inline">\{year\}年</span>{month}月${day}日`;
         // ... (formatDate 函數)
     }
 
@@ -71,8 +88,19 @@
     }
 
     function calculateItems(items, tipPercentage) {
-        // ... (calculateItems 函數)
-    }
+    const names = scanPersons(items).sort(); // 添加 sort() 方法
+    const persons = names.length;
+
+    return names.map((name) => ({
+        name,
+        amount: calculatePersonAmount({
+            items,
+            tipPercentage,
+            name,
+            persons,
+        }),
+    }));
+}
 
     function calculatePersonAmount(input) {
         // ... (calculatePersonAmount 函數)
@@ -103,11 +131,44 @@
 });
 
 
-    document.getElementById('bill-form').addEventListener('submit', (event) => {
-        // ... (bill-form submit 事件處理器)
+document.getElementById('bill-form').addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const date = document.getElementById('date').value;
+    const location = document.getElementById('location').value;
+    const tipPercentage = parseFloat(document.getElementById('tipPercentage').value);
+
+    const items = Array.from(document.querySelectorAll('.input-group')).map((item) => {
+        const name = item.querySelector('.item-name').value;
+        const priceElement = item.querySelector('.item-price');
+        const price = priceElement ? parseFloat(priceElement.value) : 0; // 添加错误处理
+        const isShared = item.querySelector('.is-shared').checked;
+        const person = item.querySelector('.payer').value;
+
+        return isShared ? { name, price, isShared: true } : { name, price, isShared: false, person };
     });
 
-    function displayResults(output) {
+    const billInput = { date, location, tipPercentage, items };
+    const billOutput = splitBill(billInput);
+
+    displayResults(billOutput);
+});
+        // ... (bill-form submit 事件處理器)
+
+
+        function displayResults(output) {
+    const resultContainer = document.getElementById('result-container');
+    resultContainer.innerHTML = `
+        <h2>分帳結果</h2>
+        <p>日期：${output.date}</p>
+        <p>地點：${output.location}</p>
+        <p>小計：<span class="currency">$${output.subTotal.toFixed(1)}</span></p>
+        <p>小費：<span class="currency">$${output.tip.toFixed(1)}</span></p>
+        <p>總金額：<span class="currency">$${output.totalAmount.toFixed(1)}</span></p>
+        <h3>每人最終需支付金額</h3>
+        <ul>${output.items.map(item => `<li>${item.name}: <span class="currency">$${item.amount.toFixed(1)}</span></li>`).join('')}</ul>
+    `;
+    resultContainer.style.display = 'block';
         // ... (displayResults 函數)
     }
 </script>
