@@ -23,6 +23,28 @@
     </form>
     <div id="result-container" style="display:none;"></div>
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    const itemsContainer = document.getElementById('items-container');
+    const addItemButton = document.getElementById('add-item');
+
+    addItemButton.addEventListener('click', () => {
+        const itemHTML = `
+            <div class="input-group">
+                <label>餐點名稱: <input type="text" class="item-name" required /></label>
+                <label>價格（元）: <input type="number" class="item-price" min="0" step="0.1" required /></label>
+                <label>是否均分: <input type="checkbox" class="is-shared" /></label>
+                <label>付款人: <input type="text" class="payer" placeholder="付款人名稱（僅對不均分項目有效）" /></label>
+                <button type="button" class="remove-item">刪除</button>
+            </div>`;
+        itemsContainer.insertAdjacentHTML('beforeend', itemHTML);
+
+        // 添加删除按钮的事件监听器
+        const removeItemButtons = document.querySelectorAll('.remove-item');
+        removeItemButtons[removeItemButtons.length - 1].addEventListener('click', function() {
+            this.parentElement.remove();
+        });
+    });
+});
         // JavaScript 代码将在后续步骤中添加
     </script>
 </body>
