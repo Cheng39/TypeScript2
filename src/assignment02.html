@@ -45,6 +45,34 @@
         });
     });
 });
+document.addEventListener('DOMContentLoaded', () => {
+    // ... (之前的 JavaScript 代码)
+
+    const billForm = document.getElementById('bill-form');
+    const resultContainer = document.getElementById('result-container');
+
+    billForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const date = document.getElementById('date').value;
+        const location = document.getElementById('location').value;
+        const tipPercentage = parseFloat(document.getElementById('tipPercentage').value);
+
+        const items = Array.from(document.querySelectorAll('.input-group')).map(group => {
+            const name = group.querySelector('.item-name').value;
+            const price = parseFloat(group.querySelector('.item-price').value);
+            const isShared = group.querySelector('.is-shared').checked;
+            const person = isShared ? '' : group.querySelector('.payer').value;
+            return isShared ? { name, price, isShared: true } : { name, price, isShared: false, person };
+        });
+
+        const billInput = { date, location, tipPercentage, items };
+        const billOutput = splitBill(billInput);
+        displayResults(billOutput);
+    });
+
+    // ... (分账计算和结果显示函数将在后续步骤中添加)
+});
         // JavaScript 代码将在后续步骤中添加
     </script>
 </body>
