@@ -58,9 +58,12 @@ th {
     </form>
     <div id="result-container" style="display:none;"></div>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+       
+document.addEventListener('DOMContentLoaded', () => {
     const itemsContainer = document.getElementById('items-container');
     const addItemButton = document.getElementById('add-item');
+    const billForm = document.getElementById('bill-form');
+    const resultContainer = document.getElementById('result-container');
 
     addItemButton.addEventListener('click', () => {
         const itemHTML = `
@@ -73,18 +76,11 @@ th {
             </div>`;
         itemsContainer.insertAdjacentHTML('beforeend', itemHTML);
 
-        // 添加删除按钮的事件监听器
         const removeItemButtons = document.querySelectorAll('.remove-item');
         removeItemButtons[removeItemButtons.length - 1].addEventListener('click', function() {
             this.parentElement.remove();
         });
     });
-});
-document.addEventListener('DOMContentLoaded', () => {
-    // ... (之前的 JavaScript 代码)
-
-    const billForm = document.getElementById('bill-form');
-    const resultContainer = document.getElementById('result-container');
 
     billForm.addEventListener('submit', (event) => {
         event.preventDefault();
@@ -94,10 +90,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const tipPercentage = parseFloat(document.getElementById('tipPercentage').value);
 
         const items = Array.from(document.querySelectorAll('.input-group')).map(group => {
-            const name = group.querySelector('.item-name').value;
-            const price = parseFloat(group.querySelector('.item-price').value);
-            const isShared = group.querySelector('.is-shared').checked;
-            const person = isShared ? '' : group.querySelector('.payer').value;
+            const nameElement = group.querySelector('.item-name');
+            const priceElement = group.querySelector('.item-price');
+            const isSharedElement = group.querySelector('.is-shared');
+            const payerElement = group.querySelector('.payer');
+
+            const name = nameElement ? nameElement.value : '';
+            const price = priceElement ? parseFloat(priceElement.value) : 0;
+            const isShared = isSharedElement ? isSharedElement.checked : false;
+            const person = payerElement ? payerElement.value : '';
+
             return isShared ? { name, price, isShared: true } : { name, price, isShared: false, person };
         });
 
@@ -105,123 +107,124 @@ document.addEventListener('DOMContentLoaded', () => {
         const billOutput = splitBill(billInput);
         displayResults(billOutput);
     });
+
     function splitBill(input) {
-    const date = formatDate(input.date);
-    const location = input.location;
-    const subTotal = calculateSubTotal(input.items);
-    const tip = calculateTip(subTotal, input.tipPercentage);
-    const totalAmount = subTotal + tip;
+        const date = formatDate(input.date);
+        const location = input.location;
+        const subTotal = calculateSubTotal(input.items);
+        const tip = calculateTip(subTotal, input.tipPercentage);
+        const totalAmount = subTotal + tip;
 
-    const items = calculateItems(input.items, input.tipPercentage);
-    adjustAmounts(totalAmount, items);
-
-    return {
-        date,
-        location,
-        subTotal,
-        tip,
-        totalAmount,
-        items,
-    };
-}
-
-function formatDate(date) {
-    const parts = date.split("-");
-    return `${parts[0]}年${parseInt(parts[1])}月${parseInt(parts[2])}日`;
-}
-
-function calculateSubTotal(items) {
-    return items.reduce((total, item) => total + item.price, 0);
-}
-
-function calculateTip(subTotal, tipPercentage) {
-    return Math.round(subTotal * (tipPercentage / 100) * 10) / 10;
-}
-
-function scanPersons(items) {
-    const persons = new Set();
-    items.forEach(item => {
-        if (!item.isShared && item.person) {
-            persons.add(item.person);
-        }
-    });
-    return Array.from(persons);
-}
-
-function calculateItems(items, tipPercentage) {
-    const sharedItems = items.filter(item => item.isShared);
-    const individualItems = items.filter(item => !item.isShared);
-
-    const persons = scanPersons(individualItems);
-    const sharedAmount = sharedItems.reduce((total, item) => total + item.price, 0);
-    const sharedAmountPerPerson = persons.length > 0 ? sharedAmount / persons.length : 0;
-
-    const results = persons.map(person => {
-        const personalAmount = individualItems
-            .filter(item => item.person === person)
-            .reduce((sum, item) => sum + item.price, 0);
-
-        const totalAmount = personalAmount + sharedAmountPerPerson;
-        const individualTip = (totalAmount * tipPercentage) / 100;
+        const items = calculateItems(input.items, input.tipPercentage);
+        adjustAmounts(totalAmount, items);
 
         return {
-            name: person,
-            amount: parseFloat((totalAmount + individualTip).toFixed(1))
+            date,
+            location,
+            subTotal,
+            tip,
+            totalAmount,
+            items,
         };
-    });
+    }
 
-    if (sharedAmount > 0) {
-        results.push({
-            name: '均分項目',
-            amount: sharedAmountPerPerson + (sharedAmount * tipPercentage / 100 / persons.length)
+    function formatDate(date) {
+        const parts = date.split("-");
+        return `${parts[0]}年${parseInt(parts[1])}月${parseInt(parts[2])}日`;
+    }
+
+    function calculateSubTotal(items) {
+        return items.reduce((total, item) => total + item.price, 0);
+    }
+
+    function calculateTip(subTotal, tipPercentage) {
+        return Math.round(subTotal * (tipPercentage / 100) * 10) / 10;
+    }
+
+    function scanPersons(items) {
+        const persons = new Set();
+        items.forEach(item => {
+            if (!item.isShared && item.person) {
+                persons.add(item.person);
+            }
         });
+        return Array.from(persons);
     }
 
-    return results;
-}
+    function calculateItems(items, tipPercentage) {
+        const sharedItems = items.filter(item => item.isShared);
+        const individualItems = items.filter(item => !item.isShared);
 
-function adjustAmounts(totalAmount, items) {
-    const currentTotal = items.reduce((sum, item) => sum + item.amount, 0);
-    const difference = totalAmount - currentTotal;
+        const persons = scanPersons(individualItems);
+        const sharedAmount = sharedItems.reduce((total, item) => total + item.price, 0);
+        const sharedAmountPerPerson = persons.length > 0 ? sharedAmount / persons.length : 0;
 
-    if (Math.abs(difference) < 0.01) return;
+        const results = persons.map(person => {
+            const personalAmount = individualItems
+                .filter(item => item.person === person)
+                .reduce((sum, item) => sum + item.price, 0);
 
-    const adjustmentPerPerson = difference / items.length;
+            const totalAmount = personalAmount + sharedAmountPerPerson;
+            const individualTip = (totalAmount * tipPercentage) / 100;
 
-    items.forEach(item => {
-        item.amount = parseFloat((item.amount + adjustmentPerPerson).toFixed(1));
-    });
+            return {
+                name: person,
+                amount: parseFloat((totalAmount + individualTip).toFixed(1))
+            };
+        });
 
-    const finalTotal = items.reduce((sum, item) => sum + item.amount, 0);
-    const finalDifference = totalAmount - finalTotal;
+        if (sharedAmount > 0) {
+            results.push({
+                name: '均分項目',
+                amount: sharedAmountPerPerson + (sharedAmount * tipPercentage / 100 / persons.length)
+            });
+        }
 
-    if (finalDifference !== 0) {
-        items[0].amount = parseFloat((items[0].amount + finalDifference).toFixed(1));
+        return results;
     }
-}
-function displayResults(output) {
-    const resultContainer = document.getElementById('result-container');
-    let itemsHTML = '';
-    output.items.forEach(item => {
-        itemsHTML += `<tr><td>${item.name}</td><td>$${item.amount.toFixed(1)}</td></tr>`;
-    });
-    resultContainer.innerHTML = `
-        <h2>分帳結果</h2>
-        <p>日期：${output.date}</p>
-        <p>地點：${output.location}</p>
-        <p>小計：<span class="currency">$${output.subTotal.toFixed(1)}</span></p>
-        <p>小費：<span class="currency">$${output.tip.toFixed(1)}</span></p>
-        <p>總金額：<span class="currency">$${output.totalAmount.toFixed(1)}</span></p>
-        <h3>每人最終需支付金額</h3>
-        <table>
-            <thead><tr><th>姓名</th><th>金額</th></tr></thead>
-            <tbody>${itemsHTML}</tbody>
-        </table>
-    `;
-    resultContainer.style.display = 'block';
-}
-    // ... (分账计算和结果显示函数将在后续步骤中添加)
+
+    function adjustAmounts(totalAmount, items) {
+        const currentTotal = items.reduce((sum, item) => sum + item.amount, 0);
+        const difference = totalAmount - currentTotal;
+
+        if (Math.abs(difference) < 0.01) return;
+
+        const adjustmentPerPerson = difference / items.length;
+
+        items.forEach(item => {
+            item.amount = parseFloat((item.amount + adjustmentPerPerson).toFixed(1));
+        });
+
+        const finalTotal = items.reduce((sum, item) => sum + item.amount, 0);
+        const finalDifference = totalAmount - finalTotal;
+
+        if (finalDifference !== 0) {
+            items[0].amount = parseFloat((items[0].amount + finalDifference).toFixed(1));
+        }
+    }
+
+    function displayResults(output) {
+        let itemsHTML = '';
+        output.items.forEach(item => {
+            itemsHTML += `<tr><td>${item.name}</td><td>$${item.amount.toFixed(1)}</td></tr>`;
+        });
+        resultContainer.innerHTML = `
+            <h2>分帳結果</h2>
+            <p>日期：${output.date}</p>
+            <p>地點：${output.location}</p>
+            <p>小計：<span class="currency">$${output.subTotal.toFixed(1)}</span></p>
+            <p>小費：<span class="currency">$${output.tip.toFixed(1)}</span></p>
+            <p>總金額：<span class="currency">$${output.totalAmount.toFixed(1)}</span></p>
+            <h3>每人最終需支付金額</h3>
+            <table>
+                <thead><tr><th>姓名</th><th>金額</th></tr></thead>
+                <tbody>${itemsHTML}</tbody>
+            </table>
+        `;
+        resultContainer.style.display = 'block';
+    }
 });
+    // ... (分账计算和结果显示函数将在后续步骤中添加)
         // JavaScript 代码将在后续步骤中添加
     </script>
 </body>
