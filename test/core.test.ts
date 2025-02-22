@@ -218,4 +218,3 @@ describe('分帳計算', () => {
     expect(splitBill(input)).to.deep.equal(output)
   })
 })
-
